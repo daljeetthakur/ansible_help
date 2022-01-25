@@ -1,0 +1,134 @@
+---
+  - name: due unix installation and hardening
+    hosts: all
+    gather_facts: false
+    become: yes
+    user: fankin
+    tasks:
+        - name: create the repo file duosecurity.repo
+          copy:
+              content: |
+                [duosecurity]
+                name=Duo Security Repository
+                baseurl=https://pkg.duosecurity.com/CentOS/$releasever/$basearch
+                enabled=1
+                gpgcheck=1
+              dest: /etc/yum.repos.d/duosecurity.repo
+          tags: dun_unix_install
+
+        - name: import the due sercurity public key
+          shell: 'rpm --import https://duo.com/DUO-GPG-PUBLIC-KEY.asc'
+          ignore_errors: yes
+          tags: dun_unix_install
+
+        - name: install duo_unix
+          yum:
+              name: duo_unix
+              state: latest
+          register: duo_unix_output
+          tags: dun_unix_install
+
+        - name: Check the /etc/pam.d/sshd file path
+          stat:
+            path: /etc/pam.d/sshd
+          register: pam_d_sshd_path
+          tags: pam_d_sshd
+
+        - name: comment password-auth module in /etc/pam.d/sshd file
+          replace:
+              path: /etc/pam.d/sshd
+              regexp: '^auth.*substack.*password-auth$'
+              replace: |
+                    # auth    substack    password-auth
+                    auth    required    pam_duo.so
+              backup: yes
+          when: pam_d_sshd_path.stat.exists
+          tags: pam_d_sshd
+
+        - name: check the pam_duo.conf file path
+          stat:
+              path: /etc/duo/pam_duo.conf
+          register: pam_duo_conf_path
+          tags: pam_duo_config
+
+        - name: create the file /etc/duo/pam_duo.conf
+          copy:
+            content: |
+              [duo]
+              ; Duo integration key
+              ikey = DIKRN1F6B8GPI2JOUP2C
+              ; Duo secret key
+              skey = CUImNf3FUcJQHzCwadiUpybG5gNyVmgOUKjEDEVV
+              ; Duo API host
+              host = api-bb5aa227.duosecurity.com
+              failmode = safe
+              group = !rptadmin,*
+            dest: /etc/duo/pam_duo.conf
+          when: pam_duo_conf_path.stat.exists
+          tags: pam_duo_config
+
+        - name: check the /etc/pam.d/sudo file path
+          stat:
+              path: /etc/pam.d/sudo
+          register: pam_d_sudo_path
+          tags: pam_d_sudo_config
+
+        - name: add the pam_duo.so module in /etc/pam.d/sudo file
+          lineinfile:
+              path: /etc/pam.d/sudo
+              line: 'session    required      pam_duo.so      pam_limits.so'
+              insertafter: EOF
+              backup: yes
+          when: pam_d_sudo_path.stat.exists
+          tags: pam_d_sudo_config
+
+        - name: check the /etc/ssh/sshd_config file path
+          stat:
+              path: /etc/ssh/sshd_config
+          register: sshd_config_path
+          tags: ssh_config
+
+        - name: modify the sshd_config files
+          replace:
+            path: /etc/ssh/sshd_config
+            regexp: '{{ item.From }}'
+            replace: '{{ item.To }}'
+            backup: yes
+          with_items:
+            - { From: '^#PubkeyAuthentication no', To: 'PubkeyAuthentication yes' }
+            - { From: '^PubkeyAuthentication no', To: 'PubkeyAuthentication yes' }
+            - { From: '^ChallengeResponseAuthentication no', To: 'ChallengeResponseAuthentication yes' }
+            - { From: '^UseDNS yes', To: 'UseDNS no' }
+            - { From: '^#UseDNS no', To: 'UseDNS no' }
+            - { From: '^#UsePAM no', To: 'UsePAM yes' }
+            - { From: '^UsePAM no', To: 'UsePAM yes' }
+            - { From: '.PasswordAuthentication no', To: 'PasswordAuthentication yes'}
+          when: sshd_config_path.stat.exists
+          notify:
+            - Restart sshd
+          tags: ssh_config
+
+        - name: Check the /etc/pam.d/system-auth file path
+          stat:
+            path: /etc/pam.d/system-auth
+          register: pam_d_system_auth_path
+          tags: pam_d_system_auth
+
+        - name: add  pam_duo.so module in /etc/pam.d/system-auth file
+          replace:
+            path: /etc/pam.d/system-auth
+            regexp: '^auth  sufficient pam_unix.so nullok try_first_pass'
+            replace: |
+              # auth  sufficient pam_unix.so nullok try_first_pass
+              auth  requisite pam_unix.so nullok try_first_pass
+              auth  sufficient pam_duo.so
+            backup: yes
+          when: pam_d_system_auth_path.stat.exists
+          tags: pam_d_system_auth
+
+    handlers:
+          - name: Restart sshd
+            service:
+              name: sshd
+              state: restarted
+
