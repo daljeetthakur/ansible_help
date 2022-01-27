@@ -3,7 +3,7 @@
     hosts: all
     gather_facts: false
     become: yes
-    user: fankin
+    user: falangke
     tasks:
         - name: create the repo file duosecurity.repo
           copy:
@@ -14,6 +14,9 @@
                 enabled=1
                 gpgcheck=1
               dest: /etc/yum.repos.d/duosecurity.repo
+              owner: root
+              group: root
+              mode: '0644'
           tags: dun_unix_install
 
         - name: import the due sercurity public key
@@ -42,15 +45,18 @@
                     # auth    substack    password-auth
               backup: yes
           when: pam_d_sshd_path.stat.exists
+          changed_when: false
           tags: pam_d_sshd
 
         - name: add pam_duo.so module in /etc/pam.d/sshd file
           replace:
               path: /etc/pam.d/sshd
-              before: '^auth.*required.*pam_sepermit.so$'
+              regexp: '^auth.*required.*pam_sepermit.so$'
               replace: |
-                    auth    required    pam_duo.so
-                    auth    include     postlogin           
+                    auth    required    pam_sepermit.so
+                    auth    required    pam_env.so
+                    auth    sufficient  pam_duo.so
+                    auth    required    pam_deny.so         
               backup: yes
           when: pam_d_sshd_path.stat.exists
           tags: pam_d_sshd
@@ -129,9 +135,9 @@
             path: /etc/pam.d/system-auth
             regexp: '^auth.*sufficient.*pam_unix.so.*nullok.*try_first_pass'
             replace: |
-              # auth  sufficient pam_unix.so nullok try_first_pass
-              auth  requisite pam_unix.so nullok try_first_pass
-              auth  sufficient pam_duo.so
+              #auth       sufficient                                   pam_unix.so nullok try_first_pass
+              auth        requisite                                    pam_unix.so nullok try_first_pass
+              auth        sufficient                                   pam_duo.so
             backup: yes
           when: pam_d_system_auth_path.stat.exists
           tags: pam_d_system_auth
