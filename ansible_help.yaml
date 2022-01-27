@@ -135,9 +135,9 @@
             path: /etc/pam.d/system-auth
             regexp: '^auth.*sufficient.*pam_unix.so.*nullok.*try_first_pass'
             replace: |
-              #auth       sufficient                                   pam_unix.so nullok try_first_pass
-              auth        requisite                                    pam_unix.so nullok try_first_pass
-              auth        sufficient                                   pam_duo.so
+              #auth       sufficient       pam_unix.so nullok try_first_pass
+              auth        requisite       pam_unix.so nullok try_first_pass
+              auth        sufficient       pam_duo.so
             backup: yes
           when: pam_d_system_auth_path.stat.exists
           tags: pam_d_system_auth
