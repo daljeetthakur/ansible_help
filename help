@@ -1,2 +1,8 @@
 cat /etc/ssh/sshd_config.12162* > /etc/ssh/sshd_config
 service ssh restart
+
+cat >> /etc/ssh/sshd_config
+AuthenticationMethods publickey,keyboard-interactive
+ctrl+d
+service ssh restart
+
