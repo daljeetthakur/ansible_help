@@ -7,3 +7,8 @@ AuthenticationMethods publickey,keyboard-interactive
 ctrl+d
 service ssh restart
 
+
+AuthenticationMethods publickey,keyboard-interactive
+when we have added in /etc/ssh/sshd_config file
+it show us bad config parameter 
+
