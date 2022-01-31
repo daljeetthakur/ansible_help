@@ -1,12 +1,6 @@
 cat /etc/ssh/sshd_config.12162* > /etc/ssh/sshd_config
 service ssh restart
 
-sudo su -
-cat >> /etc/ssh/sshd_config
-AuthenticationMethods publickey,keyboard-interactive
-ctrl+d
-service ssh restart
-
 
 AuthenticationMethods publickey,keyboard-interactive
 when we have added in /etc/ssh/sshd_config file
@@ -14,4 +8,11 @@ it show us bad config parameter
 
 cat /etc/ssh/sshd_config |grep PermitRootLogin
 passwd -S root
+
+
+sudo su -
+cat >> /etc/ssh/sshd_config
+AuthenticationMethods "publickey,keyboard-interactive" "password,keyboard-interactive"
+ctrl+d
+service ssh restart
 
