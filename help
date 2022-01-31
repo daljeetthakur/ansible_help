@@ -14,5 +14,6 @@ sudo su -
 cat >> /etc/ssh/sshd_config
 AuthenticationMethods "publickey,keyboard-interactive" "password,keyboard-interactive"
 ctrl+d
-service ssh restart
+service sshd restart
+
 
