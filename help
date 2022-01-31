@@ -16,4 +16,6 @@ AuthenticationMethods "publickey,keyboard-interactive" "password,keyboard-intera
 ctrl+d
 service sshd restart
 
+vi /etc/ssh/sshd_config
+
 
