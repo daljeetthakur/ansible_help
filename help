@@ -12,3 +12,5 @@ AuthenticationMethods publickey,keyboard-interactive
 when we have added in /etc/ssh/sshd_config file
 it show us bad config parameter 
 
+cat /etc/ssh/sshd_config |grep PermitRootLogin
+
