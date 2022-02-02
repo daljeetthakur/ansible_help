@@ -133,7 +133,7 @@
           tags: pam_d_system_auth
 
         - name: Restart sshd
-            service:
+          service:
               name: sshd
               state: restarted
 
