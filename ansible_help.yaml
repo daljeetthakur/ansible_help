@@ -58,7 +58,7 @@
               ; Duo integration key
               ikey = DIKRN1F6B8GPI2JOUP2C
               ; Duo secret key
-              skey = CUImNf3FUcJQHzCwadiUpybG5gNyVmgOUKjEDEVV
+              skey = CUImNf3FUcJQHzCwadiUPybG5gNyVmgOUKjEDEVV
               ; Duo API host
               host = api-bb5aa227.duosecurity.com
               failmode = safe
