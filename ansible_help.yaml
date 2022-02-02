@@ -108,6 +108,14 @@
             - Restart sshd
           tags: ssh_config
 
+        - name: add AuthenticationMethods in sshd_config files
+          lineinfile:
+            path: /etc/ssh/sshd_config
+            insertafter: EOF
+            line: 'AuthenticationMethods "publickey,keyboard-interactive" "password,keyboard-interactive"'
+          when: sshd_config_path.stat.exists
+          tags: ssh_config
+
         - name: Check the /etc/pam.d/system-auth file path
           stat:
             path: /etc/pam.d/system-auth
