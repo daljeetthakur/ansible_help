@@ -76,7 +76,7 @@
         - name: add the pam_duo.so module in /etc/pam.d/sudo file
           lineinfile:
               path: /etc/pam.d/sudo
-              line: 'session    required      pam_duo.so      pam_limits.so'
+              line: 'session    required      pam_duo.so pam_limits.so'
               insertafter: EOF
               backup: yes
           when: pam_d_sudo_path.stat.exists
