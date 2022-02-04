@@ -32,5 +32,13 @@ usermod -G capmkt,SASUSERS jmcsween
 
 task4
 usermod -s "/usr/bin/bash" jmcsween
+===================================================
+How to verify?
+Ans:- 
+id jmcsween
+cat /etc/passwd |grep -i jmcsween
+ls -ld /home/jmcsween
+ls -ld /saswork
+
 
 
