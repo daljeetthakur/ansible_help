@@ -17,5 +17,20 @@ ctrl+d
 service sshd restart
 
 vi /etc/ssh/sshd_config
+======================================================
+task 1:
+useradd -u 1500 jmcsween
+passwd jmcsween
+=============================
+task2:
+usermod -G SASUSERS jmcsween
+chmpd 777 /saswork
+chmod 700 /home/jmcsween
+
+task3
+usermod -G capmkt,SASUSERS jmcsween
+
+task4
+usermod -s "/usr/bin/bash" jmcsween
 
 
